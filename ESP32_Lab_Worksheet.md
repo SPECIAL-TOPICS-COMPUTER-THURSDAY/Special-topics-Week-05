@@ -179,9 +179,21 @@ ESP32-Architecture-Lab/          # โฟลเดอร์หลักของ
 ### คำถามทบทวน
 
 1. **Docker Commands**: คำสั่ง `docker-compose up -d` และ `docker-compose exec esp32-dev bash` ทำอะไร?
+    - docker-compose up -d ใช้เปิดเครื่อง
+    - docker-compose exec esp32-dev bash เข้าไปใช้เครื่อง
+
 2. **ESP-IDF Tools**: เครื่องมือไหนจาก Lab4 ที่จะใช้ในการ build โปรแกรม ESP32?
+    - echo $IDF_PATH
+        . $IDF_PATH/export.sh
+        idf.py --version
+        xtensa-esp32-elf-gcc --version
+
 3. **New Tools**: เครื่องมือใหม่ที่ติดตั้ง (tree, htop) ใช้ทำอะไร?
+    - ใช้สำหรับ ดูโครงสร้างไฟล์ และ ตรวจสอบสถานะการทำงานของระบบ ในขณะพัฒนา
+
 4. **Architecture Focus**: การศึกษา ESP32 architecture แตกต่างจากการทำ arithmetic ใน Lab4 อย่างไร?
+    -  ESP32 architecture ให้เข้าใจ โครงสร้างและการทำงานภายในของบอร์ด ในส่วนของ arithietic เป็นแค่ส่วนหนึ่งของการพัฒนา
+
 
 ### ผลลัพธ์ที่คาดหวัง
 - [ ] สร้างโฟลเดอร์ ESP32-Architecture-Lab เรียบร้อย
@@ -343,20 +355,20 @@ Flash string: Hello from Flash Memory!
 SRAM buffer: SRAM Test Data
 
 === ESP32 Memory Layout Analysis ===
-Stack variable address: 0x3ffbxxxx
-SRAM buffer address:    0x3ffcxxxx  
-Flash string address:   0x400xxxxx
-Heap allocation:        0x3ffcxxxx
+Stack variable address: 0x3ffb4550
+SRAM buffer address:    0x3ffb2cb8 
+Flash string address:   0x3f407d08
+Heap allocation:        0x3ffb526c
 
 === Heap Information ===
-Free heap size:         xxxxxx bytes
-Min free heap size:     xxxxxx bytes
-Largest free block:     xxxxxx bytes
+Free heap size:         303088 bytes
+Min free heap size:     303088 bytes
+Largest free block:     172032 bytes
 
 === Memory Usage by Type ===
-Internal SRAM:          xxxxxx bytes
+Internal SRAM:          380136 bytes
 SPI RAM (if available): 0 bytes
-DMA capable memory:     xxxxxx bytes
+DMA capable memory:     303088 bytes
 
 Memory analysis complete!
 ```
@@ -367,24 +379,37 @@ Memory analysis complete!
 
 | Memory Section | Variable/Function | Address (ที่แสดงออกมา) | Memory Type |
 |----------------|-------------------|----------------------|-------------|
-| Stack | stack_var | 0x_______ | SRAM |
-| Global SRAM | sram_buffer | 0x_______ | SRAM |
-| Flash | flash_string | 0x_______ | Flash |
-| Heap | heap_ptr | 0x_______ | SRAM |
+| Stack | stack_var | 0x3ffb4550 | SRAM |
+| Global SRAM | sram_buffer | 0x3ffb2cb8 | SRAM |
+| Flash | flash_string | 0x3f407d08 | Flash |
+| Heap | heap_ptr | 0x3ffb526c | SRAM |
 
 **Table 2.2: Memory Usage Summary**
 
 | Memory Type | Free Size (bytes) | Total Size (bytes) |
 |-------------|-------------------|--------------------|
-| Internal SRAM | _________ | 520,192 |
-| Flash Memory | _________ | varies |
-| DMA Memory | _________ | varies |
+| Internal SRAM | 380136 | 520,192 |
+| Flash Memory | 0 | varies |
+| DMA Memory | 303088 | varies |
 
 ### คำถามวิเคราะห์ (ง่าย)
 
 1. **Memory Types**: SRAM และ Flash Memory ใช้เก็บข้อมูลประเภทไหน?
+    - SRAM = เก็บข้อมูลระหว่างรันโปรแกรม
+      Flash = เก็บโปรแกรม
+      
+
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
+    - Stack variable	0x3ffb4550
+    - SRAM buffer	0x3ffb2cb8
+    - Flash string	0x3f407d08
+
 3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
+    -   Free heap size:         303088 bytes
+        Min free heap size:     303088 bytes
+        Largest free block:     172032 bytes
+        Internal SRAM:          380136 bytes
+        SPI RAM:                0 bytes
 
 ---
 
@@ -573,20 +598,20 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM | 4911 | 1.00x |
+| Random | Internal SRAM | 5656 | 1.15x |
+| Sequential | External Memory | 4425 | 0.90x |
+| Random | External Memory | 5844 | 1.32x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 4880 | 1.00x |
+| 2 | 2263 | 0.46x |
+| 4 | 1138 | 0.23x |
+| 8 | 568 | 0.12x |
+| 16 | 335 | 0.07x |
 
 ### คำถามวิเคราะห์
 
@@ -819,25 +844,31 @@ void app_main() {
 
 | Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
 |--------|-------------------|-------------------|
-| Total Iterations | _______ | _______ |
-| Average Time per Iteration (μs) | _______ | _______ |
-| Total Execution Time (ms) | _______ | _______ |
-| Task Completion Rate | _______ | _______ |
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 34 | 9641 |
+| Total Execution Time (ms) | 4992 | 5944 |
+| Task Completion Rate | 100% | 100% |
 
 **Table 4.2: Inter-Core Communication**
 
 | Metric | Value |
 |--------|-------|
-| Messages Sent | _______ |
-| Messages Received | _______ |
-| Average Latency (μs) | _______ |
-| Queue Overflow Count | _______ |
+| Messages Sent | 100 |
+| Messages Received | 100 |
+    | Average Latency (μs) | ~13,000 |
+| Queue Overflow Count | 0 |
 
 ### คำถามวิเคราะห์
 
 1. **Core Specialization**: จากผลการทดลอง core ไหนเหมาะกับงานประเภทใด?
+    - Core 0 (PRO_CPU) เหมาะกับงานที่ต้องการความเร็วสูงและตอบสนองเร็ว
+    - Core 1 (APP_CPU) หมาะกับงานที่มี latency สูงหรือต้องใช้เวลานาน 
+
 2. **Communication Overhead**: inter-core communication มี overhead เท่าไร?
+    -  มี overhead ประมาณ 13 ms / 13,000 μs
+
 3. **Load Balancing**: การกระจายงานระหว่าง cores มีประสิทธิภาพหรือไม่?
+    - มี เนื่องจากต้องจัดงานในเหมาะกับแต่ละ core
 
 ---
 
@@ -851,9 +882,9 @@ void app_main() {
 ### แบบฟอร์มส่งงาน
 
 **ข้อมูลนักศึกษา:**
-- ชื่อ: _________________________________
-- รหัสนักศึกษา: _______________________
-- วันที่ทำการทดลอง: ___________________
+- ชื่อ: กรรณิการ์   มาอุ่น
+- รหัสนักศึกษา:    66030213
+- วันที่ทำการทดลอง: 31 July 2025
 
 **Checklist การทดลอง:**
 - [ ] Environment setup สำเร็จ (ต่อเนื่องจากสัปดาห์ที่ 4)
@@ -872,13 +903,13 @@ void app_main() {
 
 **คำถามเพิ่มเติม:**
 1. เปรียบเทียบประสบการณ์การใช้ Docker ในสัปดาห์นี้กับสัปดาห์ที่ 4:
-   _________________________________________________
+   - สัปดาห์นี้ใช้ Docker ได้คล่องขึ้น เข้าใจคำสั่งและการจัดการ container ดีขึ้นจากสัปดาห์ที่ 4 ที่ยังติดปัญหาพื้นฐาน
 
 2. สิ่งที่เรียนรู้เพิ่มเติมเกี่ยวกับ ESP32 architecture:
-   _________________________________________________
+   - เข้าใจโครงสร้างหน่วยความจำของ ESP32 เช่น SRAM, Flash, Heap และการทำงานของ dual-core มากขึ้น
 
 3. ความท้าทายที่พบในการทำ architecture analysis:
-   _________________________________________________
+   ยากในการวิเคราะห์ตำแหน่งหน่วยความจำและตีความผลการทดลอง โดยเฉพาะการแยก Stack, Heap, Flash ให้ชัดเจน
 
 ---
 

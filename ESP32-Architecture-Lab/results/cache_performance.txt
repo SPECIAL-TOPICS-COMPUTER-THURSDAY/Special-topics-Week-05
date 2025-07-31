@@ -1,0 +1,20 @@
+การบันทึกผลการทดลอง
+
+**Table 3.1: Cache Performance Results**
+
+| Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
+|-----------|-------------|-----------|-------------------|
+| Sequential | Internal SRAM | 4911 | 1.00x |
+| Random | Internal SRAM | 5656 | 1.15x |
+| Sequential | External Memory | 4425 | 0.90x |
+| Random | External Memory | 5844 | 1.32x |
+
+**Table 3.2: Stride Access Performance**
+
+| Stride Size | Time (μs) | Ratio vs Stride 1 |
+|-------------|-----------|------------------|
+| 1 | 4880 | 1.00x |
+| 2 | 2263 | 0.46x |
+| 4 | 1138 | 0.23x |
+| 8 | 568 | 0.12x |
+| 16 | 335 | 0.07x |
