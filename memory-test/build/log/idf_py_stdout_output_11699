@@ -1,0 +1,21 @@
+Command: ninja all
+[1/12] Linking C static library esp-idf/esp_local_ctrl/libesp_local_ctrl.a
+[2/12] Performing build step for 'bootloader'
+[1/1] cd /project/memory-test/build/bootloader && /opt/esp/python_env/idf6.0_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /project/memory-test/build/bootloader/bootloader.bin
+Bootloader binary size 0x6690 bytes. 0x970 bytes (8%) free.
+[3/12] No install step for 'bootloader'
+[4/12] Completed 'bootloader'
+[5/12] Linking C static library esp-idf/wifi_provisioning/libwifi_provisioning.a
+[6/12] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/memory-test.c.obj
+[7/12] Linking C static library esp-idf/main/libmain.a
+[8/12] Generating esp-idf/esp_system/ld/sections.ld
+[9/12] Building C object CMakeFiles/memory-test.elf.dir/project_elf_src_esp32.c.obj
+[10/12] Linking CXX executable memory-test.elf
+[11/12] Generating binary image from built executable
+esptool.py v4.9.0
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated /project/memory-test/build/memory-test.bin
+[12/12] cd /project/memory-test/build && /opt/esp/python_env/idf6.0_py3.12_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /project/memory-test/build/partition_table/partition-table.bin /project/memory-test/build/memory-test.bin
+memory-test.bin binary size 0x282a0 bytes. Smallest app partition is 0x100000 bytes. 0xd7d60 bytes (84%) free.
