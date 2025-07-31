@@ -1,0 +1,2 @@
+/project/memory-test/build/CMakeFiles/edit_cache.dir
+/project/memory-test/build/CMakeFiles/rebuild_cache.dir
