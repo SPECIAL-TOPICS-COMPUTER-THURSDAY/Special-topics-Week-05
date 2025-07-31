@@ -1,9 +1,9 @@
-
+version: '3.8'
 
 services:
   esp32-dev:
     image: espressif/idf:latest
-    container_name: esp32-lab5
+    container_name: esp32-lab4
     volumes:
       - .:/project
     working_dir: /project
