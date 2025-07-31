@@ -1,0 +1,37 @@
+I (6643) main_task: Calling app_main()
+ESP32 Cache Performance Analysis
+
+Array size: 4096 elements (16 KB)
+Iterations per test: 100
+Test runs: 5
+
+Initializing test arrays...
+PSRAM not available, using Internal memory
+
+=== Test 1: Sequential vs Random Access (Internal SRAM) ===
+SRAM Sequential Access: 5258 us (sum=3609780224)
+SRAM Random Access: 6158 us (sum=3609780224)
+SRAM Performance Ratio (Random/Sequential): 1.17x
+
+=== Test 2: External Memory Access ===
+External Sequential Access: 22846 us (sum=3609780224)
+External Random Access: 28845 us (sum=3609780224)
+External Memory Performance Ratio: 1.26x
+
+Memory Type Comparison (Sequential Access):
+External/Internal Speed Ratio: 4.34x
+
+=== Test 3: Stride Access Patterns ===
+Stride 1 (stride 1): 5472 us (sum=3609780224)
+Stride 2 (stride 2): 2713 us (sum=1801380612)
+Stride 4 (stride 4): 1719 us (sum=3844552704)
+Stride 8 (stride 8): 788 us (sum=3866176800)
+Stride 16 (stride 16): 401 us (sum=1825504000)
+
+Stride Analysis:
+Stride 2/1 ratio: 0.50x
+Stride 4/1 ratio: 0.31x
+Stride 8/1 ratio: 0.14x
+Stride 16/1 ratio: 0.09x
+
+Cache performance analysis complete!
