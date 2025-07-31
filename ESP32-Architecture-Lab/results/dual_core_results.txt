@@ -1,0 +1,87 @@
+Core 0: Sent message 10
+Core 1: Received 'Hello from Core 0 #10' (latency: 24555 μs)
+Core 0: Sent message 20
+
+=== Performance Monitor (Second 1) ===
+Core 0 iterations: 21 (avg: 103 μs)
+Core 1 iterations: 25 (avg: 9484 μs)
+Queue messages waiting: 1
+Free heap: 292612 bytes
+Core 1: Received 'Hello from Core 0 #20' (latency: 4354 μs)
+Core 0: Sent message 30
+Core 1: Received 'Hello from Core 0 #30' (latency: 14905 μs)
+Core 0: Sent message 40
+
+=== Performance Monitor (Second 2) ===
+Core 0 iterations: 41 (avg: 67 μs)
+Core 1 iterations: 51 (avg: 9563 μs)
+Queue messages waiting: 1
+Free heap: 292612 bytes
+Core 1: Received 'Hello from Core 0 #40' (latency: 24825 μs)
+Core 0: Sent message 50
+Core 1: Received 'Hello from Core 0 #50' (latency: 4170 μs)
+Core 0: Sent message 60
+
+=== Performance Monitor (Second 3) ===
+Core 0 iterations: 61 (avg: 55 μs)
+Core 1 iterations: 76 (avg: 9594 μs)
+Queue messages waiting: 1
+Free heap: 292612 bytes
+Core 1: Received 'Hello from Core 0 #60' (latency: 14820 μs)
+Core 0: Sent message 70
+Core 1: Received 'Hello from Core 0 #70' (latency: 24698 μs)
+Core 0: Sent message 80
+
+=== Performance Monitor (Second 4) ===
+Core 0 iterations: 81 (avg: 50 μs)
+Core 1 iterations: 101 (avg: 9517 μs)
+Queue messages waiting: 1
+Free heap: 292612 bytes
+Core 1: Received 'Hello from Core 0 #80' (latency: 4248 μs)
+Core 0: Sent message 90
+Core 1: Received 'Hello from Core 0 #90' (latency: 14892 μs)
+Core 0 Task Completed in 5000 ms
+
+=== Performance Monitor (Second 5) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 127 (avg: 9543 μs)
+Queue messages waiting: 0
+Free heap: 292612 bytes
+Core 1 Task Completed in 5942 ms
+
+=== Performance Monitor (Second 6) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 150 (avg: 9615 μs)
+Queue messages waiting: 0
+Free heap: 301524 bytes
+
+=== Performance Monitor (Second 7) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 150 (avg: 9615 μs)
+Queue messages waiting: 0
+Free heap: 301524 bytes
+
+=== Performance Monitor (Second 8) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 150 (avg: 9615 μs)
+Queue messages waiting: 0
+Free heap: 301524 bytes
+
+=== Performance Monitor (Second 9) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 150 (avg: 9615 μs)
+Queue messages waiting: 0
+Free heap: 301524 bytes
+
+=== Performance Monitor (Second 10) ===
+Core 0 iterations: 100 (avg: 44 μs)
+Core 1 iterations: 150 (avg: 9615 μs)
+Queue messages waiting: 0
+Free heap: 301524 bytes
+
+=== Final Results ===
+Core 0 total iterations: 100
+Core 1 total iterations: 150
+Core 0 average: 44 μs
+Core 1 average: 9615 μs
+I (18522) main_task: Returned from app_main()

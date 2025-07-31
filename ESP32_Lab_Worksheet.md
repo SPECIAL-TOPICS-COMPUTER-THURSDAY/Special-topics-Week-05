@@ -4,7 +4,7 @@
 **หัวข้อ**: การวิเคราะห์สถาปัตยกรรม ESP32 ระบบหน่วยความจำ และ Dual-Core CPU  
 **รายวิชา**: 2568.01 APPLICATIONS OF MICROCONTROLLERS  
 **สัปดาห์ที่**: 5  
-**เวลา**: 3 ชั่วโมง  
+**เวลา**: 3 ชั่วโมง  29
 
 ---
 
@@ -367,18 +367,18 @@ Memory analysis complete!
 
 | Memory Section | Variable/Function | Address (ที่แสดงออกมา) | Memory Type |
 |----------------|-------------------|----------------------|-------------|
-| Stack | stack_var | 0x_______ | SRAM |
-| Global SRAM | sram_buffer | 0x_______ | SRAM |
-| Flash | flash_string | 0x_______ | Flash |
-| Heap | heap_ptr | 0x_______ | SRAM |
+| Stack | stack_var | 0x 0x3ffb550| SRAM |
+| Global SRAM | sram_buffer | 0x 0x3ffb1ac | SRAM |
+| Flash | flash_string | 0x 0x4f407048 | Flash |
+| Heap | heap_ptr | 0x 0x3ffb5264 | SRAM |
 
 **Table 2.2: Memory Usage Summary**
 
 | Memory Type | Free Size (bytes) | Total Size (bytes) |
 |-------------|-------------------|--------------------|
-| Internal SRAM | _________ | 520,192 |
+| Internal SRAM | 380096 | 520,192 |
 | Flash Memory | _________ | varies |
-| DMA Memory | _________ | varies |
+| DMA Memory | 	383906 | varies |
 
 ### คำถามวิเคราะห์ (ง่าย)
 
@@ -573,20 +573,20 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM | 5258 | 1.00x |
+| Random | Internal SRAM | 6158 | 1.17x |
+| Sequential | External Memory | 22846 | 1.00x |
+| Random | External Memory | 28845 | 1.26x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 5472 | 1.00x |
+| 2 | 2713 | 0.50x |
+| 4 | 1719 | 0.31x |
+| 8 | 788 | 0.14x |
+| 16 | 401 | 0.09x |
 
 ### คำถามวิเคราะห์
 
@@ -819,19 +819,19 @@ void app_main() {
 
 | Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
 |--------|-------------------|-------------------|
-| Total Iterations | _______ | _______ |
-| Average Time per Iteration (μs) | _______ | _______ |
-| Total Execution Time (ms) | _______ | _______ |
-| Task Completion Rate | _______ | _______ |
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 44 | 9615 |
+| Total Execution Time (ms) | 5000 | 5942 |
+| Task Completion Rate | 100% | 100% |
 
 **Table 4.2: Inter-Core Communication**
 
 | Metric | Value |
 |--------|-------|
-| Messages Sent | _______ |
-| Messages Received | _______ |
-| Average Latency (μs) | _______ |
-| Queue Overflow Count | _______ |
+| Messages Sent | 10 |
+| Messages Received | 10 |
+| Average Latency (μs) | 14385.22|
+| Queue Overflow Count | 0 |
 
 ### คำถามวิเคราะห์
 

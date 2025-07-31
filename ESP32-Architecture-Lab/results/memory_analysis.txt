@@ -1,0 +1,24 @@
+I (6427) main_task: Calling app_main()
+ESP32 Memory Architecture Analysis
+
+Flash string: hello from Flash memory!
+SRAM buffer: SRAM Test data
+
+=== ESP32 Memory Layout Analysis ===
+Stack variable address: 0x3ffb550
+SRAM buffer address: 0x3ffb1ac
+Flash string address: 0x4f407048
+Heap allocation: 0x3ffb5264
+
+=== Heap Information ===
+Free heap size: 383906 bytes
+Min free heap size: 383906 bytes
+Largest free block: 172932 bytes
+
+=== Memory Usage by Type ===
+Internal SRAM: 380096 bytes
+SPI/IROM (if available): 0 bytes
+DMA capable memory: 383906 bytes
+
+Memory analysis complete!
+I (6427) main_task: Returned from app_main()
