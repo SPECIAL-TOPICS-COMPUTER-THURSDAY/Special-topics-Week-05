@@ -367,24 +367,36 @@ Memory analysis complete!
 
 | Memory Section | Variable/Function | Address (ที่แสดงออกมา) | Memory Type |
 |----------------|-------------------|----------------------|-------------|
-| Stack | stack_var | 0x_______ | SRAM |
-| Global SRAM | sram_buffer | 0x_______ | SRAM |
-| Flash | flash_string | 0x_______ | Flash |
-| Heap | heap_ptr | 0x_______ | SRAM |
+| Stack | stack_var | 0x3ffb4550 | SRAM |
+| Global SRAM | sram_buffer | 0x3ffb2cb8 | SRAM |
+| Flash | flash_string | 0x3f407d08 | Flash |
+| Heap | heap_ptr | 0x3ffb526c | SRAM |
 
 **Table 2.2: Memory Usage Summary**
 
 | Memory Type | Free Size (bytes) | Total Size (bytes) |
 |-------------|-------------------|--------------------|
-| Internal SRAM | _________ | 520,192 |
-| Flash Memory | _________ | varies |
-| DMA Memory | _________ | varies |
+| Internal SRAM | 380136 | 520,192 |
+| Flash Memory | 2MB | varies |
+| DMA Memory | 303088 | varies |
 
 ### คำถามวิเคราะห์ (ง่าย)
 
 1. **Memory Types**: SRAM และ Flash Memory ใช้เก็บข้อมูลประเภทไหน?
+    ตอบ SRAM (Static RAM):ใช้เก็บข้อมูลที่เปลี่ยนแปลงได้ระหว่างการทำงาน
+        Flash Memory:ใช้เก็บข้อมูลถาวร
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
+    ตอบ Stack 0x3ffb4550
+        Global (SRAM) 0x3ffb2cb8
+        Flash/Const String  0x3f407d08
+        Heap    0x3ffb526c
 3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
+    ตอบ Internal SRAM:
+        ทั้งหมด ≈ 520,192 bytes
+        ใช้อยู่ ≈ 140,056 bytes
+        Flash Memory:
+        ขนาดทั้งหมด 2MB
+        ใช้เก็บโปรแกรมและข้อมูลคงที่
 
 ---
 
@@ -573,26 +585,31 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM | 8760 | 1.00x |
+| Random | Internal SRAM | 	7205 | 	0.82x |
+| Sequential | External Memory | 21017 | 2.40x |
+| Random | External Memory | 23936 | 2.73x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 5108 | 1.00x |
+| 2 | 2427 | 0.48x |
+| 4 | 1217 | 0.24x |
+| 8 | 592 | 0.12x |
+| 16 | 350 | 0.07x |
 
 ### คำถามวิเคราะห์
 
 1. **Cache Efficiency**: ทำไม sequential access เร็วกว่า random access?
+    ตอบ เพราะ cache memory (โดยเฉพาะ instruction/data cache ของ ESP32) ถูกออกแบบมาเพื่อเพิ่มประสิทธิภาพในการเข้าถึงข้อมูลที่เรียงติดกันในหน่วยความจำ (spatial locality)
 2. **Memory Hierarchy**: ความแตกต่างระหว่าง internal SRAM และ external memory คืออะไร?
+    ตอบ Internal SRAM เหมาะกับงานที่ต้องการ ความเร็วและ latency ต่ำ
+        External memory เหมาะกับงานที่ต้องการ ขนาดใหญ่ แต่ยอมเสียความเร็วได้ เช่น buffer กล้อง, log
 3. **Stride Patterns**: stride size ส่งผลต่อ performance อย่างไร?
+    ตอบ ยิ่ง stride สูง → ยิ่งเร็ว (เพราะ access น้อยลงต่อ block)
+        แต่ไม่ควรใช้ stride สูงถ้า algorithm ต้องเข้าถึงข้อมูลทุกตัว (precision loss)
 
 ---
 
@@ -819,25 +836,30 @@ void app_main() {
 
 | Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
 |--------|-------------------|-------------------|
-| Total Iterations | _______ | _______ |
-| Average Time per Iteration (μs) | _______ | _______ |
-| Total Execution Time (ms) | _______ | _______ |
-| Task Completion Rate | _______ | _______ |
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 34 | 9624 |
+| Total Execution Time (ms) | 4992 | 5933 |
+| Task Completion Rate | 100% | 100% |
 
 **Table 4.2: Inter-Core Communication**
 
 | Metric | Value |
 |--------|-------|
-| Messages Sent | _______ |
-| Messages Received | _______ |
-| Average Latency (μs) | _______ |
-| Queue Overflow Count | _______ |
+| Messages Sent | 100 |
+| Messages Received | 100 |
+| Average Latency (μs) | ~11,130 |
+| Queue Overflow Count | 0 |
 
 ### คำถามวิเคราะห์
 
 1. **Core Specialization**: จากผลการทดลอง core ไหนเหมาะกับงานประเภทใด?
+    ตอบ Core 0 สำหรับงานเร่งด่วน/ต่อเนื่อง
+        Core 1 สำหรับงานหนักหรือ delay ได้
 2. **Communication Overhead**: inter-core communication มี overhead เท่าไร?
+    ตอบ Inter-core latency ~11,130 μs
 3. **Load Balancing**: การกระจายงานระหว่าง cores มีประสิทธิภาพหรือไม่?
+    ตอบ Core 0 ใช้เวลาเพียง ~5 ms ต่อรอบ → workload เบา
+        Core 1 ใช้เวลามากกว่า 9 ms ต่อรอบ → workload หนักกว่าเกินเท่าตัว
 
 ---
 
@@ -851,9 +873,9 @@ void app_main() {
 ### แบบฟอร์มส่งงาน
 
 **ข้อมูลนักศึกษา:**
-- ชื่อ: _________________________________
-- รหัสนักศึกษา: _______________________
-- วันที่ทำการทดลอง: ___________________
+- ชื่อ: นายธีรพัฒน์ เข็มทิศ
+- รหัสนักศึกษา: 66030077
+- วันที่ทำการทดลอง: 31/7/2568
 
 **Checklist การทดลอง:**
 - [ ] Environment setup สำเร็จ (ต่อเนื่องจากสัปดาห์ที่ 4)
@@ -872,13 +894,19 @@ void app_main() {
 
 **คำถามเพิ่มเติม:**
 1. เปรียบเทียบประสบการณ์การใช้ Docker ในสัปดาห์นี้กับสัปดาห์ที่ 4:
-   _________________________________________________
+   ประสบการณ์จาก "แค่ใช้งานตามตัวอย่าง" กลายเป็น "การควบคุมและปรับแต่ง Docker ตามความต้องการจริง"
 
 2. สิ่งที่เรียนรู้เพิ่มเติมเกี่ยวกับ ESP32 architecture:
-   _________________________________________________
+   ESP32 มีสถาปัตยกรรมแบบ dual-core (PRO_CPU และ APP_CPU) ซึ่งสามารถทำงานพร้อมกันได้แบบจริงจัง (true multiprocessing)
+   การใช้ cache มีผลโดยตรงต่อ performance ของ memory access โดยเฉพาะใน internal SRAM และ external memory
+   เรียนรู้เรื่อง memory hierarchy และขอบเขตของพื้นที่ต่าง ๆ เช่น IRAM, DRAM, D/IRAM รวมถึงการ map memory จาก flash และการทำงานของ bootloader
+   ได้ทดลองใช้ FreeRTOS task แยกตาม core เพื่อทำ inter-core communication และวัด latency ซึ่งช่วยให้เข้าใจเรื่อง context switch และ queue system บน RTOS มากขึ้น
 
 3. ความท้าทายที่พบในการทำ architecture analysis:
-   _________________________________________________
+   การจับเวลาในระดับ microsecond ต้องใช้วิธีการวัดที่แม่นยำ เช่น esp_timer_get_time() และต้องระวังไม่ให้ compiler optimize บางส่วนของโค้ดที่ทำให้ผลเพี้ยน
+   การจัดการ task บน dual-core ต้องระวัง load imbalance เพราะหาก core ใดทำงานมากกว่าอีก core มาก อาจทำให้ประสิทธิภาพโดยรวมลดลง
+   ความเข้าใจการทำงานของ cache และ memory access pattern ต้องอาศัยการทดลองหลายแบบ เช่น sequential, random, และ stride access จึงจะเห็นพฤติกรรมจริง
+   เครื่องมือ debug บน ESP32 ยังจำกัดเมื่อเทียบกับ PC ทำให้การวิเคราะห์ต้องอาศัย log และการออกแบบการทดลองอย่างรอบคอบ
 
 ---
 
