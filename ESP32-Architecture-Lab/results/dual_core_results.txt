@@ -1,0 +1,19 @@
+การบันทึกผลการทดลอง
+
+**Table 4.1: Dual-Core Performance Summary**
+
+| Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
+|--------|-------------------|-------------------|
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 34 | 9641 |
+| Total Execution Time (ms) | 4992 | 5944 |
+| Task Completion Rate | 100% | 100% |
+
+**Table 4.2: Inter-Core Communication**
+
+| Metric | Value |
+|--------|-------|
+| Messages Sent | 100 |
+| Messages Received | 100 |
+| Average Latency (μs) | ~13,000 |
+| Queue Overflow Count | 0 |
