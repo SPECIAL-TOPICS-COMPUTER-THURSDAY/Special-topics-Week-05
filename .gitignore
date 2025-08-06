@@ -1,0 +1,18 @@
+# Ignore build output
+build/
+
+# Ignore Python virtual env (ถ้ามี)
+.env/
+.venv/
+
+# Ignore CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Ignore compiled output
+*.bin
+*.elf
+*.map
+*.pyc
+__pycache__/
