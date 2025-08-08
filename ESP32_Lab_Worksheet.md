@@ -343,20 +343,20 @@ Flash string: Hello from Flash Memory!
 SRAM buffer: SRAM Test Data
 
 === ESP32 Memory Layout Analysis ===
-Stack variable address: 0x3ffbxxxx
-SRAM buffer address:    0x3ffcxxxx  
-Flash string address:   0x400xxxxx
-Heap allocation:        0x3ffcxxxx
+Stack variable address: 0x3ffb4550
+SRAM buffer address:    0x3ffb2cb8
+Flash string address:   0x3f407d08
+Heap allocation:        0x3ffb526c
 
 === Heap Information ===
-Free heap size:         xxxxxx bytes
-Min free heap size:     xxxxxx bytes
-Largest free block:     xxxxxx bytes
+Free heap size:         303088 bytes
+Min free heap size:     303088 bytes
+Largest free block:     172032 bytes
 
 === Memory Usage by Type ===
-Internal SRAM:          xxxxxx bytes
+Internal SRAM:          380136 bytes
 SPI RAM (if available): 0 bytes
-DMA capable memory:     xxxxxx bytes
+DMA capable memory:     303088 bytes
 
 Memory analysis complete!
 ```
@@ -367,24 +367,36 @@ Memory analysis complete!
 
 | Memory Section | Variable/Function | Address (ที่แสดงออกมา) | Memory Type |
 |----------------|-------------------|----------------------|-------------|
-| Stack | stack_var | 0x_______ | SRAM |
-| Global SRAM | sram_buffer | 0x_______ | SRAM |
-| Flash | flash_string | 0x_______ | Flash |
-| Heap | heap_ptr | 0x_______ | SRAM |
+| Stack | stack_var | 0x3ffb4550 | SRAM |
+| Global SRAM | sram_buffer | 0x3ffb2cb8	 | SRAM |
+| Flash | flash_string | 0x3f407d08 | Flash |
+| Heap | heap_ptr | 0x3ffb526c | SRAM |
 
 **Table 2.2: Memory Usage Summary**
 
 | Memory Type | Free Size (bytes) | Total Size (bytes) |
 |-------------|-------------------|--------------------|
-| Internal SRAM | _________ | 520,192 |
-| Flash Memory | _________ | varies |
-| DMA Memory | _________ | varies |
+| Internal SRAM | 303,088	 | 520,192 |
+| Flash Memory | ———— | varies |
+| DMA Memory | 	303,088 | varies |
 
 ### คำถามวิเคราะห์ (ง่าย)
 
 1. **Memory Types**: SRAM และ Flash Memory ใช้เก็บข้อมูลประเภทไหน?
+SRAM (Static RAM) ใช้เก็บตัวแปรที่เปลี่ยนแปลงได้ เช่น ตัวแปร stack, heap, global variables, buffers ที่ต้องเขียนอ่านแบบเร็ว ๆ
+
+Flash Memory เป็นหน่วยความจำแบบถาวร ใช้เก็บข้อมูลที่ไม่เปลี่ยนแปลงบ่อย เช่น โค้ดโปรแกรม (firmware), ข้อความคงที่ (string literals), constants
+
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
+Stack variable อยู่ที่ address ประมาณ 0x3ffb4550 (อยู่ใน SRAM)
+Global SRAM variable (sram_buffer) อยู่ที่ 0x3ffb2cb8 (SRAM)
+Flash string (flash_string) อยู่ที่ 0x3f407d08 (Flash memory)
+Heap allocation (heap_ptr) อยู่ที่ 0x3ffb526c (SRAM)
+
 3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
+Internal SRAM ใช้ไปประมาณ 380,136 bytes
+Free heap size อยู่ที่ประมาณ 303,088 bytes
+รวมกันคร่าว ๆ Internal SRAM = 380,136 + 303,088 = 683,224 bytes (ประมาณ 667 KB)
 
 ---
 
@@ -573,26 +585,31 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM | 17376 | 1.00x |
+| Random | Internal SRAM | 12059 | 0.69x |
+| Sequential | External Memory | 29241 | 1.68x |
+| Random | External Memory | 38993 | 2.24x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 9368 | 1.00x |
+| 2 | 	3949 | 	0.42x |
+| 4 | 1882 | 0.20x |
+| 8 | 944 | 	0.10x |
+| 16 | 465 | 0.05x |
 
 ### คำถามวิเคราะห์
 
 1. **Cache Efficiency**: ทำไม sequential access เร็วกว่า random access?
+Sequential access เร็วกว่าเพราะ cache และ prefetching mechanisms ของ CPU สามารถคาดการณ์และโหลดข้อมูลที่อยู่ต่อเนื่องไว้ล่วงหน้าได้ (เช่นโหลด block ต่อไปมาไว้ใน cache) ซึ่งช่วยลดเวลาการเข้าถึงข้อมูล เมื่อเป็น random access จะไม่มี pattern ที่สามารถคาดเดาได้ ทำให้ไม่สามารถใช้ prefetch ได้อย่างมีประสิทธิภาพ และอาจเกิด cache miss บ่อยครั้ง
+
 2. **Memory Hierarchy**: ความแตกต่างระหว่าง internal SRAM และ external memory คืออะไร?
+Internal SRAM: เป็นหน่วยความจำที่อยู่ภายในชิป ทำงานได้เร็วมาก เพราะอยู่ใกล้ CPU มากที่สุด และมี latency ต่ำ
+External Memory: เป็นหน่วยความจำที่อยู่นอกชิป (เช่น PSRAM หรือ SDRAM) เข้าถึงช้ากว่าเพราะมี latency สูง และอาจมี bandwidth จำกัด
 3. **Stride Patterns**: stride size ส่งผลต่อ performance อย่างไร?
+เมื่อ stride size เพิ่มขึ้น (1 → 2 → 4 → 8 → 16) เวลาในการเข้าถึง (access time) ลดลงอย่างชัดเจน เพราะการใช้ stride ที่ใหญ่ขึ้นทำให้ เข้าถึงข้อมูลห่างกันมากขึ้น ทำให้ มีการโหลดข้อมูลน้อยลง และลดความถี่ในการเข้าถึงหน่วยความจำ
 
 ---
 
@@ -819,25 +836,31 @@ void app_main() {
 
 | Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
 |--------|-------------------|-------------------|
-| Total Iterations | _______ | _______ |
-| Average Time per Iteration (μs) | _______ | _______ |
-| Total Execution Time (ms) | _______ | _______ |
-| Task Completion Rate | _______ | _______ |
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 74 | 9633 |
+| Total Execution Time (ms) | 4994 | 4994 |
+| Task Completion Rate | 20 iter/sec | 25 iter/sec |
 
 **Table 4.2: Inter-Core Communication**
 
 | Metric | Value |
 |--------|-------|
-| Messages Sent | _______ |
-| Messages Received | _______ |
-| Average Latency (μs) | _______ |
-| Queue Overflow Count | _______ |
+| Messages Sent | 	100 |
+| Messages Received | 	100 |
+| Average Latency (μs) | 12562 |
+| Queue Overflow Count | 0 |
 
 ### คำถามวิเคราะห์
 
 1. **Core Specialization**: จากผลการทดลอง core ไหนเหมาะกับงานประเภทใด?
+Core 0 เหมาะกับงานที่ต้องเร็วและทำซ้ำๆ เช่น การควบคุมอุปกรณ์
+Core 1 เหมาะกับงานที่เกี่ยวกับการรับ-ส่งข้อมูล หรือรอข้อมูล เช่น การสื่อสารระหว่างระบบ
+
 2. **Communication Overhead**: inter-core communication มี overhead เท่าไร?
+มีความล่าช้าเฉลี่ยประมาณ 12 มิลลิวินาที ต่อข้อความ ถือว่า ค่อนข้างช้า ถ้าใช้ในงานที่ต้องตอบสนองเร็ว
+
 3. **Load Balancing**: การกระจายงานระหว่าง cores มีประสิทธิภาพหรือไม่?
+ยังไม่ค่อยดีเท่าไร Core 0 ทำงานได้เร็วกว่า แต่ Core 1 ต้องรอข้อมูลและใช้เวลานานกว่า ทำให้ Core 1 กลายเป็นจุดอ่อนของระบบ
 
 ---
 
@@ -851,9 +874,9 @@ void app_main() {
 ### แบบฟอร์มส่งงาน
 
 **ข้อมูลนักศึกษา:**
-- ชื่อ: _________________________________
-- รหัสนักศึกษา: _______________________
-- วันที่ทำการทดลอง: ___________________
+- ชื่อ: นาย ณัฐนันท์ สุวรรณโชติ
+- รหัสนักศึกษา: 66030238
+- วันที่ทำการทดลอง: 8/8/2025
 
 **Checklist การทดลอง:**
 - [ ] Environment setup สำเร็จ (ต่อเนื่องจากสัปดาห์ที่ 4)
@@ -872,13 +895,13 @@ void app_main() {
 
 **คำถามเพิ่มเติม:**
 1. เปรียบเทียบประสบการณ์การใช้ Docker ในสัปดาห์นี้กับสัปดาห์ที่ 4:
-   _________________________________________________
+   สัปดาห์นี้ใช้ Docker ได้คล่องขึ้น ตั้งค่าสภาพแวดล้อมเร็วขึ้น และแก้ปัญหาได้เองมากขึ้น
 
 2. สิ่งที่เรียนรู้เพิ่มเติมเกี่ยวกับ ESP32 architecture:
-   _________________________________________________
+   รู้ว่า ESP32 มีสอง core ที่แยกงานกันได้ และสามารถสื่อสารกันผ่าน queue ได้
 
 3. ความท้าทายที่พบในการทำ architecture analysis:
-   _________________________________________________
+   วิเคราะห์เวลาแต่ละ core ยาก ต้องอ่าน log และจับค่า latency
 
 ---
 
