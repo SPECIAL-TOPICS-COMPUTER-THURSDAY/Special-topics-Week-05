@@ -1,0 +1,171 @@
+root@45dd0436e055:/project/dual-core-test# idf.py qemu 
+Adding "qemu"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /project/dual-core-test/build
+Executing "ninja all"...
+[1/4] cd /project/dual-core-test/build && ...ct/dual-core-test/build/dual-core-test.bi 
+dual-core-test.bin binary size 0x2bc30 bytes. Smallest app partition is 0x100000 bytes. 0xd43d0 bytes (83%) free.
+[1/1] cd /project/dual-core-test/build/boo...-core-test/build/bootloader/bootloader.bi 
+Bootloader binary size 0x6690 bytes. 0x970 bytes (8%) free.
+[4/4] Completed 'bootloader'Executing action: qemu
+Generating flash image: /project/dual-core-test/build/qemu_flash.bin
+esptool.py --chip=esp32 merge_bin --output=/project/dual-core-test/build/qemu_flash.bin --fill-flash-size=2MB --flash_mode dio --flash_freq 40m --flash_size 2MB 0x1000 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 dual-core-test.bin
+esptool.py v4.9.0
+SHA digest in image updated
+Wrote 0x200000 bytes to file /project/dual-core-test/build/qemu_flash.bin, ready to flash to offset 0x0
+Generating efuse image: /project/dual-core-test/build/qemu_efuse.bin
+Running qemu (fg): qemu-system-xtensa -M esp32 -m 4M -drive file=/project/dual-core-test/build/qemu_flash.bin,if=mtd,format=raw -drive file=/project/dual-core-test/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -nographic -serial mon:stdio
+Adding SPI flash device
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x12 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6372
+load:0x40078000,len:15920
+ho 0 tail 12 room 4
+load:0x40080400,len:3880
+entry 0x40080638
+I (2239) boot: ESP-IDF v6.0-dev-1362-g346870a304 2nd stage bootloader
+I (2249) boot: compile time Aug  8 2025 16:26:59
+I (2250) boot: Multicore bootloader
+I (4527) boot: chip revision: v3.0
+I (4535) boot.esp32: SPI Speed      : 40MHz
+I (4536) boot.esp32: SPI Mode       : DIO
+I (4538) boot.esp32: SPI Flash Size : 2MB
+I (4787) boot: Enabling RNG early entropy source...
+I (5158) boot: Partition Table:
+I (5158) boot: ## Label            Usage          Type ST Offset   Length
+I (5159) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (5160) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (5161) boot:  2 factory          factory app      00 00 00010000 00100000
+I (5592) boot: End of partition table
+I (8794) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=09ba4h ( 39844) map
+I (10367) esp_image: segment 1: paddr=00019bcc vaddr=3ffb0000 size=025e4h (  9700) load
+I (11010) esp_image: segment 2: paddr=0001c1b8 vaddr=40080000 size=03e60h ( 15968) load
+I (11776) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=128b8h ( 75960) map
+I (13141) esp_image: segment 4: paddr=000328e0 vaddr=40083e60 size=092fch ( 37628) load
+I (14582) esp_image: segment 5: paddr=0003bbe4 vaddr=50000000 size=00024h (    36) load
+I (19166) boot: Loaded app from partition at offset 0x10000
+I (19166) boot: Disabling RNG early entropy source...
+I (19364) cpu_start: Multicore app
+I (10866) cpu_start: Pro cpu start user code
+I (10867) cpu_start: cpu freq: 160000000 Hz
+I (10870) app_init: Application information:
+I (10870) app_init: Project name:     dual-core-test
+I (10873) app_init: App version:      1
+I (10873) app_init: Compile time:     Aug  8 2025 16:26:16
+I (10874) app_init: ELF file SHA256:  6266c90d6...
+I (10875) app_init: ESP-IDF:          v6.0-dev-1362-g346870a304
+I (10876) efuse_init: Min chip rev:     v0.0
+I (10876) efuse_init: Max chip rev:     v3.99
+I (10877) efuse_init: Chip rev:         v3.0
+I (10880) heap_init: Initializing. RAM available for dynamic allocation:
+I (10881) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (10882) heap_init: At 3FFB2ED0 len 0002D130 (180 KiB): DRAM
+I (10884) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (10886) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (10886) heap_init: At 4008D15C len 00012EA4 (75 KiB): IRAM
+I (10952) spi_flash: detected chip: winbond
+I (10964) spi_flash: flash io: dio
+I (10989) main_task: Started on CPU0
+I (10999) main_task: Calling app_main()
+ESP32 Dual-Core Architecture Analysis
+=====================================
+Creating tasks...
+Core 0 Task Started (PRO_CPU)
+Core 0: Sent message 0
+Tasks created successfully. Monitoring dual-core performance...
+
+Core 1 Task Started (APP_CPU)
+Core 1: Received 'Hello from Core 0 #0' (latency: 17852 μs)
+Core 0: Sent message 10
+Core 1: Received 'Hello from Core 0 #10' (latency: 5392 μs)
+Core 0: Sent message 20
+
+=== Performance Monitor (Second 1) ===
+Core 0 iterations: 21 (avg: 203 μs)
+Core 1 iterations: 25 (avg: 10117 μs)
+Queue messages waiting: 1
+Free heap: 292604 bytes
+Core 1: Received 'Hello from Core 0 #20' (latency: 16865 μs)
+Core 0: Sent message 30
+Core 1: Received 'Hello from Core 0 #30' (latency: 27055 μs)
+Core 0: Sent message 40
+Core 1: Received 'Hello from Core 0 #40' (latency: 5475 μs)
+
+=== Performance Monitor (Second 2) ===
+Core 0 iterations: 41 (avg: 125 μs)
+Core 1 iterations: 51 (avg: 9767 μs)
+Queue messages waiting: 0
+Free heap: 292604 bytes
+Core 0: Sent message 50
+Core 1: Received 'Hello from Core 0 #50' (latency: 17075 μs)
+Core 0: Sent message 60
+
+=== Performance Monitor (Second 3) ===
+Core 0 iterations: 61 (avg: 101 μs)
+Core 1 iterations: 76 (avg: 9757 μs)
+Queue messages waiting: 1
+Free heap: 292604 bytes
+Core 1: Received 'Hello from Core 0 #60' (latency: 27014 μs)
+Core 0: Sent message 70
+Core 1: Received 'Hello from Core 0 #70' (latency: 5385 μs)
+Core 0: Sent message 80
+
+=== Performance Monitor (Second 4) ===
+Core 0 iterations: 81 (avg: 88 μs)
+Core 1 iterations: 101 (avg: 9746 μs)
+Queue messages waiting: 1
+Free heap: 292604 bytes
+Core 1: Received 'Hello from Core 0 #80' (latency: 16071 μs)
+Core 0: Sent message 90
+Core 1: Received 'Hello from Core 0 #90' (latency: 26677 μs)
+Core 0 Task Completed in 4998 ms
+
+=== Performance Monitor (Second 5) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 127 (avg: 9668 μs)
+Queue messages waiting: 0
+Free heap: 297060 bytes
+Core 1 Task Completed in 5947 ms
+
+=== Performance Monitor (Second 6) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 150 (avg: 9729 μs)
+Queue messages waiting: 0
+Free heap: 301516 bytes
+
+=== Performance Monitor (Second 7) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 150 (avg: 9729 μs)
+Queue messages waiting: 0
+Free heap: 301516 bytes
+
+=== Performance Monitor (Second 8) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 150 (avg: 9729 μs)
+Queue messages waiting: 0
+Free heap: 301516 bytes
+
+=== Performance Monitor (Second 9) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 150 (avg: 9729 μs)
+Queue messages waiting: 0
+Free heap: 301516 bytes
+
+=== Performance Monitor (Second 10) ===
+Core 0 iterations: 100 (avg: 78 μs)
+Core 1 iterations: 150 (avg: 9729 μs)
+Queue messages waiting: 0
+Free heap: 301516 bytes
+
+=== Final Results ===
+Core 0 total iterations: 100
+Core 1 total iterations: 150
+Core 0 average time per iteration: 78 μs
+Core 1 average time per iteration: 9729 μs
+
+Dual-core analysis complete!
+I (22999) main_task: Returned from app_main()

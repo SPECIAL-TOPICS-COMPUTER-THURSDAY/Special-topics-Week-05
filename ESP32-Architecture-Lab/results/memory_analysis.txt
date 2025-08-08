@@ -1,0 +1,96 @@
+root@45dd0436e055:/project/memory-test# idf.py qemu
+Adding "qemu"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /project/memory-test/build
+Executing "ninja all"...
+[1/4] cd /project/memory-test/build && /op.../project/memory-test/build/memory_test.bi 
+memory_test.bin binary size 0x27ea0 bytes. Smallest app partition is 0x100000 bytes. 0xd8160 bytes (84%) free.
+[1/1] cd /project/memory-test/build/bootlo...emory-test/build/bootloader/bootloader.bi 
+Bootloader binary size 0x6690 bytes. 0x970 bytes (8%) free.
+[4/4] Completed 'bootloader'Executing action: qemu
+Generating flash image: /project/memory-test/build/qemu_flash.bin
+esptool.py --chip=esp32 merge_bin --output=/project/memory-test/build/qemu_flash.bin --fill-flash-size=2MB --flash_mode dio --flash_freq 40m --flash_size 2MB 0x1000 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 memory_test.bin    
+esptool.py v4.9.0
+SHA digest in image updated
+Wrote 0x200000 bytes to file /project/memory-test/build/qemu_flash.bin, ready to flash to offset 0x0
+Using existing efuse image: /project/memory-test/build/qemu_efuse.bin
+Running qemu (fg): qemu-system-xtensa -M esp32 -m 4M -drive file=/project/memory-test/build/qemu_flash.bin,if=mtd,format=raw -drive file=/project/memory-test/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -nographic -serial mon:stdio
+Adding SPI flash device
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x12 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6372
+load:0x40078000,len:15920
+ho 0 tail 12 room 4
+load:0x40080400,len:3880
+entry 0x40080638
+I (1397) boot: ESP-IDF v6.0-dev-1362-g346870a304 2nd stage bootloader
+I (1398) boot: compile time Aug  7 2025 16:55:40
+I (1398) boot: Multicore bootloader
+I (2380) boot: chip revision: v3.0
+I (2386) boot.esp32: SPI Speed      : 40MHz
+I (2386) boot.esp32: SPI Mode       : DIO
+I (2386) boot.esp32: SPI Flash Size : 2MB
+I (2522) boot: Enabling RNG early entropy source...
+I (2621) boot: Partition Table:
+I (2621) boot: ## Label            Usage          Type ST Offset   Length
+I (2621) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (2622) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (2622) boot:  2 factory          factory app      00 00 00010000 00100000
+I (2732) boot: End of partition table
+I (3495) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=097f4h ( 38900) map
+I (4111) esp_image: segment 1: paddr=0001981c vaddr=3ffb0000 size=025e4h (  9700) load
+I (4951) esp_image: segment 2: paddr=0001be08 vaddr=40080000 size=04210h ( 16912) load
+I (5674) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=0f0a8h ( 61608) map
+I (6419) esp_image: segment 4: paddr=0002f0d0 vaddr=40084210 size=08d78h ( 36216) load
+I (7059) esp_image: segment 5: paddr=00037e50 vaddr=50000000 size=00024h (    36) load
+I (10189) boot: Loaded app from partition at offset 0x10000
+I (10190) boot: Disabling RNG early entropy source...
+I (10302) cpu_start: Multicore app
+I (19968) cpu_start: Pro cpu start user code
+I (19970) cpu_start: cpu freq: 160000000 Hz
+I (19971) app_init: Application information:
+I (19971) app_init: Project name:     memory_test
+I (19972) app_init: App version:      1
+I (19972) app_init: Compile time:     Aug  7 2025 17:07:16
+I (19973) app_init: ELF file SHA256:  1c2ac1e96...
+I (19973) app_init: ESP-IDF:          v6.0-dev-1362-g346870a304
+I (19973) efuse_init: Min chip rev:     v0.0
+I (19974) efuse_init: Max chip rev:     v3.99
+I (19975) efuse_init: Chip rev:         v3.0
+I (19977) heap_init: Initializing. RAM available for dynamic allocation:
+I (19979) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (19981) heap_init: At 3FFB32B0 len 0002CD50 (179 KiB): DRAM
+I (19983) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (19983) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (19984) heap_init: At 4008CF88 len 00013078 (76 KiB): IRAM
+I (20046) spi_flash: detected chip: winbond
+I (20057) spi_flash: flash io: dio
+I (20071) main_task: Started on CPU0
+I (20081) main_task: Calling app_main()
+ESP32 Memory Architecture Analysis
+==================================
+Flash string: Hello from Flash Memory!
+SRAM buffer: SRAM Test Data
+
+=== ESP32 Memory Layout Analysis ===
+Stack variable address: 0x3ffb4550
+SRAM buffer address:    0x3ffb2cb8
+Flash string address:   0x3f407d08
+Heap allocation:        0x3ffb526c
+
+=== Heap Information ===
+Free heap size:         303088 bytes
+Min free heap size:     303088 bytes
+Largest free block:     172032 bytes
+
+=== Memory Usage by Type ===
+Internal SRAM:          380136 bytes
+SPI RAM (if available): 0 bytes
+DMA capable memory:     303088 bytes
+
+Memory analysis complete!
+I (20091) main_task: Returned from app_main()
