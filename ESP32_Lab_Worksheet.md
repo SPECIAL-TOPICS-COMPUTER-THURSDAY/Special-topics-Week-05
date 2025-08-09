@@ -179,10 +179,15 @@ ESP32-Architecture-Lab/          # โฟลเดอร์หลักของ
 ### คำถามทบทวน
 
 1. **Docker Commands**: คำสั่ง `docker-compose up -d` และ `docker-compose exec esp32-dev bash` ทำอะไร?
+docker-compose up -d คำสั่งนี้จะสั่งให้ Docker Compose สร้างและเริ่มต้น container ตามที่ระบุในไฟล์ docker-compose.yml docker-compose exec esp32-dev bash คำสั่งนี้เหมือนเรา ssh เข้าไปใน container esp32-dev เพื่อทำงานหรือแก้ไขระบบภายใน container นั้น
 2. **ESP-IDF Tools**: เครื่องมือไหนจาก Lab4 ที่จะใช้ในการ build โปรแกรม ESP32?
+ส่วนใหญ่เราใช้ idf.py ในการสั่ง build โปรแกรมบน ESP32
 3. **New Tools**: เครื่องมือใหม่ที่ติดตั้ง (tree, htop) ใช้ทำอะไร?
+tree : แสดงโครงสร้างไฟล์เป็นแบบต้นไม้
+htop : ดูสถานะระบบ CPU, RAM, process แบบ real-time
 4. **Architecture Focus**: การศึกษา ESP32 architecture แตกต่างจากการทำ arithmetic ใน Lab4 อย่างไร?
-
+ESP32 architecture คือศึกษาฮาร์ดแวร์และโครงสร้างบอร์ด
+ทำ arithmetic คือเขียนโปรแกรมคำนวณบนบอร์ดนั้น
 ### ผลลัพธ์ที่คาดหวัง
 - [ ] สร้างโฟลเดอร์ ESP32-Architecture-Lab เรียบร้อย
 - [ ] คัดลอกหรือสร้าง docker-compose.yml ได้สำเร็จ
@@ -343,20 +348,20 @@ Flash string: Hello from Flash Memory!
 SRAM buffer: SRAM Test Data
 
 === ESP32 Memory Layout Analysis ===
-Stack variable address: 0x3ffbxxxx
-SRAM buffer address:    0x3ffcxxxx  
-Flash string address:   0x400xxxxx
-Heap allocation:        0x3ffcxxxx
+Stack variable address: 0x3ffb4550
+SRAM buffer address:    0x3ffb16ac  
+Flash string address:   0x3f407d08
+Heap allocation:        0x3ffb526c
 
 === Heap Information ===
-Free heap size:         xxxxxx bytes
-Min free heap size:     xxxxxx bytes
-Largest free block:     xxxxxx bytes
+Free heap size:         303088 bytes
+Min free heap size:     303088 bytes
+Largest free block:     172032 bytes
 
 === Memory Usage by Type ===
-Internal SRAM:          xxxxxx bytes
+Internal SRAM:          380136 bytes
 SPI RAM (if available): 0 bytes
-DMA capable memory:     xxxxxx bytes
+DMA capable memory:     303088 bytes
 
 Memory analysis complete!
 ```
@@ -383,8 +388,19 @@ Memory analysis complete!
 ### คำถามวิเคราะห์ (ง่าย)
 
 1. **Memory Types**: SRAM และ Flash Memory ใช้เก็บข้อมูลประเภทไหน?
+SRAM: เก็บตัวแปรที่แก้ไขได้ เช่น stack, heap, ตัวแปร global
+
+Flash Memory: เก็บโค้ดโปรแกรมและข้อมูลคงที่ (const)
 2. **Address Ranges**: ตัวแปรแต่ละประเภทอยู่ใน address range ไหน?
+SRAM: อยู่ในช่วง 0x3ffbxxxx
+
+Flash: อยู่ในช่วง 0x3f40xxxx
 3. **Memory Usage**: ESP32 มี memory ทั้งหมดเท่าไร และใช้ไปเท่าไร?
+Internal SRAM: ใช้ประมาณ 380 KB
+
+Heap ว่าง: ประมาณ 303 KB
+
+SPI RAM: ไม่ได้ใช้ (0 bytes)
 
 ---
 
@@ -573,26 +589,29 @@ void app_main() {
 
 | Test Type | Memory Type | Time (μs) | Ratio vs Sequential |
 |-----------|-------------|-----------|-------------------|
-| Sequential | Internal SRAM | _______ | 1.00x |
-| Random | Internal SRAM | _______ | ____x |
-| Sequential | External Memory | _______ | ____x |
-| Random | External Memory | _______ | ____x |
+| Sequential | Internal SRAM | 5683 | 1.00x |
+| Random | Internal SRAM | 6204 | 1.09x |
+| Sequential | External Memory | 20098 | 3.54x |
+| Random | External Memory | 21748 | 3.83x |
 
 **Table 3.2: Stride Access Performance**
 
 | Stride Size | Time (μs) | Ratio vs Stride 1 |
 |-------------|-----------|------------------|
-| 1 | _______ | 1.00x |
-| 2 | _______ | ____x |
-| 4 | _______ | ____x |
-| 8 | _______ | ____x |
-| 16 | _______ | ____x |
+| 1 | 5398 | 1.00x |
+| 2 | 2675 | 0.50x |
+| 4 | 1323 | 0.25x |
+| 8 | 652 | 0.12x |
+| 16 | 347 | 0.06x |
 
 ### คำถามวิเคราะห์
 
 1. **Cache Efficiency**: ทำไม sequential access เร็วกว่า random access?
+เพราะใช้ประโยชน์จาก cache ได้เต็มที่ (spatial locality) ลด cache miss ในขณะที่ random access ทำให้ cache ทำงานได้ไม่เต็มประสิทธิภาพ
 2. **Memory Hierarchy**: ความแตกต่างระหว่าง internal SRAM และ external memory คืออะไร?
+ Internal SRAM อยู่บนชิป เข้าถึงเร็วกว่า External memory (PSRAM) ที่ต้องผ่าน bus ภายนอก ทำให้ latency สูงกว่า
 3. **Stride Patterns**: stride size ส่งผลต่อ performance อย่างไร?
+Stride เล็กเข้าถึงข้อมูลต่อเนื่อง ใช้เวลามากกว่า Stride ใหญ่ที่ข้ามข้อมูลหลายตำแหน่ง ทำให้เวลาลดลงตาม stride size ที่เพิ่มขึ้น
 
 ---
 
@@ -819,25 +838,29 @@ void app_main() {
 
 | Metric | Core 0 (PRO_CPU) | Core 1 (APP_CPU) |
 |--------|-------------------|-------------------|
-| Total Iterations | _______ | _______ |
-| Average Time per Iteration (μs) | _______ | _______ |
-| Total Execution Time (ms) | _______ | _______ |
-| Task Completion Rate | _______ | _______ |
+| Total Iterations | 100 | 150 |
+| Average Time per Iteration (μs) | 55 | 9594 |
+| Total Execution Time (ms) | 4992 | 5945 |
+| Task Completion Rate | 20.0 it/s | 25.2 it/s
+ |
 
 **Table 4.2: Inter-Core Communication**
 
 | Metric | Value |
 |--------|-------|
-| Messages Sent | _______ |
-| Messages Received | _______ |
-| Average Latency (μs) | _______ |
-| Queue Overflow Count | _______ |
+| Messages Sent | 100 |
+| Messages Received | 100 |
+| Average Latency (μs) | 9,594 μs |
+| Queue Overflow Count | 0 |
 
 ### คำถามวิเคราะห์
 
 1. **Core Specialization**: จากผลการทดลอง core ไหนเหมาะกับงานประเภทใด?
+Core 0 เหมาะกับงานที่เน้นประสิทธิภาพและความเร็วตอบสนองสูง (real-time, lightweight tasks) ส่วน Core 1 เหมาะกับงานหนัก ๆ ที่ต้องใช้เวลาคำนวณมาก (heavy processing tasks)
 2. **Communication Overhead**: inter-core communication มี overhead เท่าไร?
+Inter-core communication เป็นจุดที่ทำให้เกิด overhead ค่อนข้างสูง และส่งผลกระทบต่อความล่าช้าโดยรวมของระบบ (โดยเฉพาะ core ที่รอรับข้อความ) ซึ่งอาจทำให้ไม่เหมาะกับงานที่ต้องการ latency ต่ำมาก ๆ
 3. **Load Balancing**: การกระจายงานระหว่าง cores มีประสิทธิภาพหรือไม่?
+การกระจายงานยังไม่สมดุลเต็มที่ เพราะ Core 1 ดูเหมือนจะทำงานหนักกว่าและใช้เวลานานกว่า Core 0 มาก แต่อาจจะเป็นเพราะงานมีลักษณะแตกต่างกัน (Core 1 งานหนักกว่า) หรือการสื่อสารทำให้เกิด bottleneck ได้
 
 ---
 
